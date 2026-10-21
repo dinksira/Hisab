@@ -1,6 +1,17 @@
 class UserProfile {
   final String id;
   final String? displayName;
+  final String? avatarUrl;
+
+  /// The email address of the account, when the provider exposes one.
+  final String? email;
+
+  /// The identity provider the account was created with (`email`, `google`).
+  final String authProvider;
+
+  /// Whether the email address has been confirmed by the backend.
+  final bool emailVerified;
+
   final String preferredCurrency;
   final String locale;
   final String themePreference;
@@ -11,6 +22,10 @@ class UserProfile {
   const UserProfile({
     required this.id,
     this.displayName,
+    this.avatarUrl,
+    this.email,
+    this.authProvider = 'email',
+    this.emailVerified = false,
     this.preferredCurrency = 'USD',
     this.locale = 'en_US',
     this.themePreference = 'system',
@@ -22,6 +37,10 @@ class UserProfile {
   UserProfile copyWith({
     String? id,
     String? displayName,
+    String? avatarUrl,
+    String? email,
+    String? authProvider,
+    bool? emailVerified,
     String? preferredCurrency,
     String? locale,
     String? themePreference,
@@ -32,6 +51,10 @@ class UserProfile {
     return UserProfile(
       id: id ?? this.id,
       displayName: displayName ?? this.displayName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      email: email ?? this.email,
+      authProvider: authProvider ?? this.authProvider,
+      emailVerified: emailVerified ?? this.emailVerified,
       preferredCurrency: preferredCurrency ?? this.preferredCurrency,
       locale: locale ?? this.locale,
       themePreference: themePreference ?? this.themePreference,
@@ -44,6 +67,10 @@ class UserProfile {
   Map<String, dynamic> toJson() => {
         'id': id,
         'display_name': displayName,
+        'avatar_url': avatarUrl,
+        'email': email,
+        'auth_provider': authProvider,
+        'email_verified': emailVerified,
         'preferred_currency': preferredCurrency,
         'locale': locale,
         'theme_preference': themePreference,
@@ -56,6 +83,10 @@ class UserProfile {
     return UserProfile(
       id: json['id'] as String,
       displayName: json['display_name'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
+      email: json['email'] as String?,
+      authProvider: json['auth_provider'] as String? ?? 'email',
+      emailVerified: json['email_verified'] as bool? ?? false,
       preferredCurrency: json['preferred_currency'] as String? ?? 'USD',
       locale: json['locale'] as String? ?? 'en_US',
       themePreference: json['theme_preference'] as String? ?? 'system',
