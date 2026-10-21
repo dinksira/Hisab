@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/constants/app_config.dart';
 import '../../core/dates/date_utils.dart';
 import '../../features/accounts/domain/account.dart';
+import '../../features/auth/data/auth_state.dart';
 import '../../features/auth/domain/user_profile.dart';
 import '../../features/budgets/domain/budget.dart';
 import '../../features/goals/domain/savings_goal.dart';
@@ -19,34 +21,77 @@ class SupabaseAuthRepository implements IAuthRepository {
     return client;
   }
 
+  /// Whether a session is currently active.
+  bool get hasActiveSession => _client.auth.currentSession != null;
+
   @override
-  Stream<bool> get authStateChanges =>
-      _client.auth.onAuthStateChange.map((event) => event.session != null);
+  Stream<AuthEvent> get authStateChanges =>
+      _client.auth.onAuthStateChange.map((authState) => AuthEvent(
+            _mapEvent(authState.event),
+            hasSession: authState.session != null,
+          ));
+
+  static AuthEventType _mapEvent(AuthChangeEvent event) => switch (event) {
+        AuthChangeEvent.initialSession => AuthEventType.initialSession,
+        AuthChangeEvent.signedIn => AuthEventType.signedIn,
+        AuthChangeEvent.signedOut => AuthEventType.signedOut,
+        AuthChangeEvent.tokenRefreshed => AuthEventType.tokenRefreshed,
+        AuthChangeEvent.userUpdated => AuthEventType.userUpdated,
+        AuthChangeEvent.passwordRecovery => AuthEventType.passwordRecovery,
+        _ => AuthEventType.initialSession,
+      };
 
   @override
   Future<UserProfile?> getCurrentUser() async {
     final user = _client.auth.currentUser;
     if (user == null) return null;
 
-    final response = await _client
-        .from('profiles')
-        .select()
-        .eq('id', user.id)
-        .maybeSingle();
-
-    if (response == null) {
-      // Create initial profile if missing
-      final profile = UserProfile(
-        id: user.id,
-        displayName: user.userMetadata?['display_name'] as String?,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-      await _client.from('profiles').insert(profile.toJson());
-      return profile;
+    final response = await _selectProfile(user.id);
+    if (response != null) {
+      final profile = UserProfile.fromJson(response);
+      // The email lives in the auth schema; keep the profile row in sync with
+      // it even when the row was written before the column existed.
+      return profile.copyWith(email: profile.email ?? user.email);
     }
 
-    return UserProfile.fromJson(response);
+    // The profile row is created by the `on_auth_user_created` trigger. If it
+    // is not visible yet we fall back to a profile derived from the auth
+    // metadata instead of writing to the database from the client.
+    return _profileFromAuthUser(user);
+  }
+
+  /// Reads the profile row, retrying briefly to cover replication lag right
+  /// after the account was created.
+  Future<Map<String, dynamic>?> _selectProfile(String userId) async {
+    for (var attempt = 0; attempt < 3; attempt++) {
+      final response = await _client
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
+      if (response != null) return response;
+      if (attempt < 2) {
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      }
+    }
+    return null;
+  }
+
+  UserProfile _profileFromAuthUser(User user) {
+    final metadata = user.userMetadata ?? const <String, dynamic>{};
+    final displayName = (metadata['display_name'] ??
+            metadata['full_name'] ??
+            metadata['name']) as String?;
+    return UserProfile(
+      id: user.id,
+      displayName: displayName,
+      avatarUrl: metadata['avatar_url'] as String?,
+      email: user.email,
+      authProvider: (metadata['provider'] as String?) ?? 'email',
+      emailVerified: user.emailConfirmedAt != null,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
   }
 
   @override
@@ -59,20 +104,18 @@ class SupabaseAuthRepository implements IAuthRepository {
       email: email,
       password: password,
       data: {'display_name': displayName},
+      emailRedirectTo: AppConfig.authRedirectUrl,
     );
 
     final user = authResponse.user;
-    if (user == null) throw Exception('Registration failed: no user returned.');
+    if (user == null) {
+      throw const AuthException('Registration failed: no user returned.');
+    }
 
-    final profile = UserProfile(
-      id: user.id,
-      displayName: displayName,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+    final existing = await _selectProfile(user.id);
+    if (existing != null) return UserProfile.fromJson(existing);
 
-    await _client.from('profiles').upsert(profile.toJson());
-    return profile;
+    return _profileFromAuthUser(user).copyWith(displayName: displayName);
   }
 
   @override
@@ -83,15 +126,23 @@ class SupabaseAuthRepository implements IAuthRepository {
     );
 
     final user = authResponse.user;
-    if (user == null) throw Exception('Sign-in failed: invalid credentials.');
+    if (user == null) {
+      throw const AuthException('Sign-in failed.');
+    }
 
     final profile = await getCurrentUser();
-    return profile ??
-        UserProfile(
-          id: user.id,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
+    return profile ?? _profileFromAuthUser(user);
+  }
+
+  @override
+  Future<bool> signInWithGoogle() async {
+    // The returned flag only reports that the browser was launched. The
+    // sign-in itself completes through `authStateChanges`.
+    return _client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: AppConfig.authRedirectUrl,
+      scopes: 'email profile',
+    );
   }
 
   @override
@@ -101,7 +152,24 @@ class SupabaseAuthRepository implements IAuthRepository {
 
   @override
   Future<void> resetPassword({required String email}) async {
-    await _client.auth.resetPasswordForEmail(email);
+    await _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: AppConfig.authRedirectUrl,
+    );
+  }
+
+  @override
+  Future<void> resendConfirmation({required String email}) async {
+    await _client.auth.resend(
+      type: OtpType.signup,
+      email: email,
+      emailRedirectTo: AppConfig.authRedirectUrl,
+    );
+  }
+
+  @override
+  Future<void> updatePassword({required String newPassword}) async {
+    await _client.auth.updateUser(UserAttributes(password: newPassword));
   }
 
   @override
@@ -109,6 +177,31 @@ class SupabaseAuthRepository implements IAuthRepository {
     final updated = profile.copyWith(updatedAt: DateTime.now());
     await _client.from('profiles').update(updated.toJson()).eq('id', updated.id);
     return updated;
+  }
+
+  @override
+  Future<List<AuthIdentity>> getIdentities() async {
+    final identities = await _client.auth.getUserIdentities();
+    return identities
+        .map((identity) => AuthIdentity(
+              id: identity.identityId,
+              provider: identity.provider,
+              email: identity.identityData?['email'] as String?,
+              displayName: (identity.identityData?['full_name'] ??
+                  identity.identityData?['name']) as String?,
+            ))
+        .toList();
+  }
+
+  @override
+  Future<void> unlinkIdentity(String identityId) async {
+    final identities = await _client.auth.getUserIdentities();
+    for (final identity in identities) {
+      if (identity.identityId == identityId) {
+        await _client.auth.unlinkIdentity(identity);
+        return;
+      }
+    }
   }
 }
 

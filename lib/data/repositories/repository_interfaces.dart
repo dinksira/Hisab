@@ -1,5 +1,6 @@
-import '../../features/auth/domain/user_profile.dart';
 import '../../features/accounts/domain/account.dart';
+import '../../features/auth/data/auth_state.dart';
+import '../../features/auth/domain/user_profile.dart';
 import '../../features/budgets/domain/budget.dart';
 import '../../features/goals/domain/savings_goal.dart';
 import '../../features/recurring/domain/recurring_transaction.dart';
@@ -8,13 +9,49 @@ import '../../features/transactions/domain/transfer.dart';
 import '../../shared/models/category.dart';
 
 abstract class IAuthRepository {
+  /// The profile of the currently signed-in user, or null when signed out.
   Future<UserProfile?> getCurrentUser();
-  Future<UserProfile> signUp({required String email, required String password, String? displayName});
+
+  /// Registers a new account.
+  ///
+  /// When the backend requires email confirmation the returned profile is
+  /// still valid but no session exists yet; check
+  /// [SupabaseAuthRepository.hasActiveSession] or the auth stream to react.
+  Future<UserProfile> signUp({
+    required String email,
+    required String password,
+    String? displayName,
+  });
+
   Future<UserProfile> signIn({required String email, required String password});
+
+  /// Starts the browser based Google OAuth flow.
+  ///
+  /// The returned value only reports whether the browser was launched; the
+  /// sign-in completes asynchronously through [authStateChanges].
+  Future<bool> signInWithGoogle();
+
   Future<void> signOut();
+
+  /// Sends a password reset link to [email].
   Future<void> resetPassword({required String email});
+
+  /// Re-sends the email confirmation link.
+  Future<void> resendConfirmation({required String email});
+
+  /// Sets a new password for the signed-in (recovering) user.
+  Future<void> updatePassword({required String newPassword});
+
   Future<UserProfile> updateProfile(UserProfile profile);
-  Stream<bool> get authStateChanges;
+
+  /// Stream of backend authentication events.
+  Stream<AuthEvent> get authStateChanges;
+
+  /// All identities linked to the current account.
+  Future<List<AuthIdentity>> getIdentities();
+
+  /// Removes a linked identity (email or Google) from the account.
+  Future<void> unlinkIdentity(String identityId);
 }
 
 abstract class IAccountRepository {
