@@ -3,7 +3,7 @@
 -- ====================================================================
 
 BEGIN;
-SELECT plan(12);
+SELECT plan(20);
 
 -- 1. Test anonymous access is blocked on profiles
 SET ROLE anon;
@@ -108,6 +108,80 @@ SELECT results_eq(
     $$ SELECT name FROM public.budgets WHERE id = 'cccccccc-cccc-cccc-cccc-cccccccccccc' $$,
     $$ VALUES ('Monthly Food') $$,
     'User can create and retrieve their monthly budget'
+);
+
+-- ============================================================
+-- 13-20. Authentication profile automation
+-- ============================================================
+
+-- 13. The trigger creates a profile for every new auth user
+SET ROLE postgres;
+INSERT INTO auth.users (id, email, raw_user_meta_data, raw_app_meta_data)
+VALUES (
+    '33333333-3333-3333-3333-333333333333',
+    'userC@hisab.app',
+    '{"full_name": "User C", "avatar_url": "https://example.com/c.png"}'::jsonb,
+    '{"provider": "email"}'::jsonb
+);
+
+SELECT results_eq(
+    $$ SELECT display_name FROM public.profiles WHERE id = '33333333-3333-3333-3333-333333333333' $$,
+    $$ VALUES ('User C') $$,
+    'Profile row is created automatically for a new auth user'
+);
+
+-- 14. The trigger stores the email address
+SELECT results_eq(
+    $$ SELECT email FROM public.profiles WHERE id = '33333333-3333-3333-3333-333333333333' $$,
+    $$ VALUES ('userC@hisab.app') $$,
+    'Profile row stores the email address of the auth user'
+);
+
+-- 15. The trigger records the identity provider
+SELECT results_eq(
+    $$ SELECT auth_provider FROM public.profiles WHERE id = '33333333-3333-3333-3333-333333333333' $$,
+    $$ VALUES ('email') $$,
+    'Profile row records the identity provider'
+);
+
+-- 16. The trigger stores the avatar url
+SELECT results_eq(
+    $$ SELECT avatar_url FROM public.profiles WHERE id = '33333333-3333-3333-3333-333333333333' $$,
+    $$ VALUES ('https://example.com/c.png') $$,
+    'Profile row stores the avatar url from the auth metadata'
+);
+
+-- 17. The trigger marks an unconfirmed email as not verified
+SELECT results_eq(
+    $$ SELECT email_verified FROM public.profiles WHERE id = '33333333-3333-3333-3333-333333333333' $$,
+    $$ VALUES (false) $$,
+    'Profile row marks a pending email as unverified'
+);
+
+-- 18. Confirming the email flips the verification flag
+UPDATE auth.users
+SET email_confirmed_at = now()
+WHERE id = '33333333-3333-3333-3333-333333333333';
+
+SELECT results_eq(
+    $$ SELECT email_verified FROM public.profiles WHERE id = '33333333-3333-3333-3333-333333333333' $$,
+    $$ VALUES (true) $$,
+    'Confirming the email updates the profile verification flag'
+);
+
+-- 19. Users may only read their own profile
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+
+SELECT is_empty(
+    $$ SELECT id FROM public.profiles WHERE id = '33333333-3333-3333-3333-333333333333' $$,
+    'A user cannot read the profile of another user'
+);
+
+-- 20. The own profile stays readable
+SELECT is_not_empty(
+    $$ SELECT id FROM public.profiles WHERE id = '11111111-1111-1111-1111-111111111111' $$,
+    'A user can read their own profile'
 );
 
 SELECT * FROM finish();
