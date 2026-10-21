@@ -6,6 +6,9 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/widgets/hisab_logo.dart';
 import '../../../shared/providers/providers.dart';
+import '../data/auth_errors.dart';
+import 'widgets/auth_error_banner.dart';
+import 'widgets/google_sign_in_button.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   final String initialMode; // 'login' | 'register'
@@ -24,11 +27,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final TextEditingController _nameController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _isLogin = widget.initialMode == 'login';
+    _isLogin = widget.initialMode == 'register' ? false : true;
   }
 
   @override
@@ -39,42 +44,64 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     super.dispose();
   }
 
+  void _setError(Object error) {
+    if (!mounted) return;
+    setState(() => _errorMessage = AuthErrors.message(error));
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final name = _nameController.text.trim();
 
     try {
+      final controller = ref.read(authControllerProvider);
       if (_isLogin) {
-        await ref.read(currentUserProfileProvider.notifier).signIn(email, password);
+        await controller.signIn(email: email, password: password);
       } else {
-        await ref.read(currentUserProfileProvider.notifier).signUp(email, password, name.isEmpty ? null : name);
-      }
-
-      if (mounted) {
-        context.go('/dashboard');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: AppColors.expenseAccent,
-          ),
+        await controller.signUp(
+          email: email,
+          password: password,
+          displayName: name.isEmpty ? null : name,
         );
       }
+      // Navigation is owned by the router: it reacts to the auth state and
+      // moves to the dashboard, the verification screen or the welcome screen.
+    } catch (error) {
+      _setError(error);
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isGoogleLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await ref.read(authControllerProvider).signInWithGoogle();
+      // The browser takes over. When the user comes back the auth stream
+      // reports the new session and the router navigates to the dashboard.
+    } catch (error) {
+      _setError(error);
+    } finally {
+      if (mounted) setState(() => _isGoogleLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBusy = _isLoading || _isGoogleLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -113,9 +140,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 ),
                 const SizedBox(height: AppSpacing.xxl),
 
+                GoogleSignInButton(
+                  onPressed: isBusy ? null : _signInWithGoogle,
+                  isLoading: _isGoogleLoading,
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+                _OrDivider(isDark: isDark),
+                const SizedBox(height: AppSpacing.lg),
+
+                if (_errorMessage != null) ...[
+                  AuthErrorBanner(
+                    message: _errorMessage!,
+                    onDismiss: () => setState(() => _errorMessage = null),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+
                 if (!_isLogin) ...[
                   TextFormField(
                     controller: _nameController,
+                    textInputAction: TextInputAction.next,
+                    autofillHints: const [AutofillHints.name],
                     decoration: const InputDecoration(
                       labelText: 'Your Name',
                       hintText: 'e.g. Tariq Vance',
@@ -134,6 +180,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.email],
                   decoration: const InputDecoration(
                     labelText: 'Email Address',
                     hintText: 'name@example.com',
@@ -150,9 +198,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  autofillHints: const [AutofillHints.password],
+                  onFieldSubmitted: (_) => isBusy ? null : _submit(),
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    hintText: 'Minimum 6 characters',
+                    hintText: 'Minimum 8 characters',
                     prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -163,15 +214,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ),
                   ),
                   validator: (val) {
-                    if (val == null || val.length < 6) return 'Password must be at least 6 characters';
+                    if (val == null || val.isEmpty) return 'Enter your password';
+                    if (val.length < 8) return 'Password must be at least 8 characters';
                     return null;
                   },
                 ),
 
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.sm),
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: isBusy
+                        ? null
+                        : () => context.push('/auth/forgot-password'),
+                    child: const Text('Forgot password?'),
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.md),
 
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _submit,
+                  onPressed: isBusy ? null : _submit,
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
@@ -184,11 +248,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 const SizedBox(height: AppSpacing.lg),
 
                 TextButton(
-                  onPressed: () => setState(() => _isLogin = !_isLogin),
+                  onPressed: isBusy
+                      ? null
+                      : () => setState(() {
+                            _isLogin = !_isLogin;
+                            _errorMessage = null;
+                          }),
                   child: Text(
                     _isLogin
                         ? "Don't have an account? Sign up"
-                        : "Already have an account? Sign in",
+                        : 'Already have an account? Sign in',
                   ),
                 ),
               ],
@@ -196,6 +265,33 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The "or" separator between the Google button and the email form.
+class _OrDivider extends StatelessWidget {
+  const _OrDivider({required this.isDark});
+
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textColor = isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted;
+
+    return Row(
+      children: [
+        Expanded(child: Divider(color: color, height: 1)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          child: Text(
+            'or',
+            style: AppTypography.bodySmall.copyWith(color: textColor),
+          ),
+        ),
+        Expanded(child: Divider(color: color, height: 1)),
+      ],
     );
   }
 }
