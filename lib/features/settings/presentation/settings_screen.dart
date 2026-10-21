@@ -6,7 +6,7 @@ import '../../../app/theme/app_radii.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/widgets/hisab_logo.dart';
-import '../../../data/remote/supabase_client.dart';
+import '../../../features/auth/presentation/linked_accounts_section.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/widgets/financial_card.dart';
 
@@ -16,8 +16,9 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final userProfile = ref.watch(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.watch(currentUserProfileProvider);
     final isPrivacy = ref.watch(privacyModeProvider);
+    final isDemoMode = ref.watch(isDemoModeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -168,6 +169,11 @@ class SettingsScreen extends ConsumerWidget {
 
               const SizedBox(height: AppSpacing.xl),
 
+              // Linked sign-in methods
+              const LinkedAccountsSection(),
+
+              const SizedBox(height: AppSpacing.xl),
+
               // System & Security Section
               Text(
                 'Security & Account',
@@ -184,16 +190,14 @@ class SettingsScreen extends ConsumerWidget {
                     _SettingsTile(
                       icon: Icons.cloud_done_outlined,
                       title: 'Backend Status',
-                      subtitle: SupabaseService.isInitialized
-                          ? 'Connected to Supabase PostgreSQL'
-                          : 'Local Secure Sandbox (No remote keys)',
+                      subtitle: isDemoMode
+                          ? 'Local Secure Sandbox (No remote keys)'
+                          : 'Connected to Supabase PostgreSQL',
                       trailing: Container(
                         width: 10,
                         height: 10,
                         decoration: BoxDecoration(
-                          color: SupabaseService.isInitialized
-                              ? AppColors.incomeGreen
-                              : AppColors.warningAccent,
+                          color: isDemoMode ? AppColors.warningAccent : AppColors.incomeGreen,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -204,7 +208,7 @@ class SettingsScreen extends ConsumerWidget {
                       title: 'Sign Out',
                       titleColor: AppColors.expenseAccent,
                       onTap: () async {
-                        await ref.read(currentUserProfileProvider.notifier).signOut();
+                        await ref.read(authControllerProvider).signOut();
                         if (context.mounted) {
                           context.go('/welcome');
                         }
