@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/dates/date_utils.dart';
 import '../../core/money/financial_calculator.dart';
@@ -7,6 +9,8 @@ import '../../data/repositories/mock_repositories.dart';
 import '../../data/repositories/repository_interfaces.dart';
 import '../../data/repositories/supabase_repositories.dart';
 import '../../features/accounts/domain/account.dart';
+import '../../features/auth/data/auth_controller.dart';
+import '../../features/auth/data/auth_state.dart';
 import '../../features/auth/domain/user_profile.dart';
 import '../../features/budgets/domain/budget.dart';
 import '../../features/goals/domain/savings_goal.dart';
@@ -92,52 +96,67 @@ class SelectedPeriodNotifier extends Notifier<String> {
 final selectedPeriodProvider = NotifierProvider<SelectedPeriodNotifier, String>(SelectedPeriodNotifier.new);
 
 // --- Auth State Provider ---
-final currentUserProfileProvider = AsyncNotifierProvider<UserProfileNotifier, UserProfile?>(() {
-  return UserProfileNotifier();
+/// True when the application runs against the local mock backend instead of a
+/// real Supabase project.
+final isDemoModeProvider = Provider<bool>((ref) => !SupabaseService.isInitialized);
+
+/// The error that prevented Supabase from starting, if any.
+final supabaseInitErrorProvider = Provider<Object?>((ref) => SupabaseService.initError);
+
+/// Owns the authentication lifecycle and exposes it as [AuthState].
+final authControllerProvider = Provider<AuthController>((ref) {
+  final controller = AuthController(ref.read(authRepositoryProvider));
+  ref.onDispose(controller.dispose);
+  return controller;
 });
 
-class UserProfileNotifier extends AsyncNotifier<UserProfile?> {
+final authStateProvider =
+    NotifierProvider<AuthStateNotifier, AuthState>(AuthStateNotifier.new);
+
+class AuthStateNotifier extends Notifier<AuthState> {
+  AuthState? _previous;
+
   @override
-  Future<UserProfile?> build() async {
-    final repo = ref.read(authRepositoryProvider);
-    return repo.getCurrentUser();
+  AuthState build() {
+    final controller = ref.watch(authControllerProvider);
+
+    final subscription = controller.stream.listen((next) {
+      if (!ref.mounted) return;
+      _handleTransition(next);
+      state = next;
+    });
+    ref.onDispose(subscription.cancel);
+
+    unawaited(controller.bootstrap());
+
+    return const AuthState.unknown();
   }
 
-  Future<void> signIn(String email, String password) async {
-    state = const AsyncValue.loading();
-    try {
-      final user = await ref.read(authRepositoryProvider).signIn(email: email, password: password);
-      state = AsyncValue.data(user);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-      rethrow;
+  /// Drops every cached value that belonged to the user who just signed out.
+  void _handleTransition(AuthState next) {
+    final wasSignedIn = _previous?.isAuthenticated ?? false;
+    if (wasSignedIn && !next.isAuthenticated) {
+      clearUserData(ref);
     }
+    _previous = next;
   }
+}
 
-  Future<void> signUp(String email, String password, String? displayName) async {
-    state = const AsyncValue.loading();
-    try {
-      final user = await ref.read(authRepositoryProvider).signUp(
-            email: email,
-            password: password,
-            displayName: displayName,
-          );
-      state = AsyncValue.data(user);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-      rethrow;
-    }
-  }
+/// The profile of the signed-in user, or null when signed out.
+final currentUserProfileProvider = Provider<UserProfile?>((ref) {
+  return ref.watch(authStateProvider).profile;
+});
 
-  Future<void> signOut() async {
-    await ref.read(authRepositoryProvider).signOut();
-    state = const AsyncValue.data(null);
-  }
-
-  Future<void> updateProfile(UserProfile profile) async {
-    final updated = await ref.read(authRepositoryProvider).updateProfile(profile);
-    state = AsyncValue.data(updated);
-  }
+/// Invalidates every provider that caches data belonging to the signed-in
+/// user so that no stale rows survive a sign-out or an account switch.
+void clearUserData(Ref ref) {
+  ref.invalidate(accountsListProvider);
+  ref.invalidate(categoriesListProvider);
+  ref.invalidate(transactionsListProvider);
+  ref.invalidate(transfersListProvider);
+  ref.invalidate(budgetsListProvider);
+  ref.invalidate(savingsGoalsListProvider);
+  ref.invalidate(recurringListProvider);
 }
 
 // --- Accounts Provider ---
@@ -335,7 +354,7 @@ final dashboardSummaryProvider = Provider<DashboardSummary>((ref) {
   final txsAsync = ref.watch(transactionsListProvider);
   final budgetsAsync = ref.watch(budgetsListProvider);
   final goalsAsync = ref.watch(savingsGoalsListProvider);
-  final userProfile = ref.watch(currentUserProfileProvider).valueOrNull;
+  final userProfile = ref.watch(currentUserProfileProvider);
 
   final currency = userProfile?.preferredCurrency ?? 'USD';
 
