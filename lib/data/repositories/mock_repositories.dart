@@ -4,6 +4,7 @@ import '../../core/dates/date_utils.dart';
 import '../../core/money/financial_calculator.dart';
 import '../../core/money/money.dart';
 import '../../features/accounts/domain/account.dart';
+import '../../features/auth/data/auth_state.dart';
 import '../../features/auth/domain/user_profile.dart';
 import '../../features/budgets/domain/budget.dart';
 import '../../features/goals/domain/savings_goal.dart';
@@ -21,6 +22,10 @@ class MockDataStore {
   }
 
   UserProfile? currentUser;
+
+  /// The demo profile handed out when the user explores the demo environment.
+  UserProfile? seededUser;
+
   final List<Account> accounts = [];
   final List<Category> categories = [];
   final List<FinancialTransaction> transactions = [];
@@ -30,12 +35,12 @@ class MockDataStore {
   final List<GoalContribution> contributions = [];
   final List<RecurringTransaction> recurring = [];
 
-  final _authStreamController = StreamController<bool>.broadcast();
-  Stream<bool> get authStateChanges => _authStreamController.stream;
+  final _authStreamController = StreamController<AuthEvent>.broadcast();
+  Stream<AuthEvent> get authStateChanges => _authStreamController.stream;
 
   void _seed() {
     final now = DateTime.now();
-    currentUser = UserProfile(
+    seededUser = UserProfile(
       id: 'demo-user-1',
       displayName: 'Zaid Al-Mansoor',
       preferredCurrency: 'USD',
@@ -357,7 +362,7 @@ class MockAuthRepository implements IAuthRepository {
   final MockDataStore _store = MockDataStore.instance;
 
   @override
-  Stream<bool> get authStateChanges => _store.authStateChanges;
+  Stream<AuthEvent> get authStateChanges => _store.authStateChanges;
 
   @override
   Future<UserProfile?> getCurrentUser() async => _store.currentUser;
@@ -371,17 +376,20 @@ class MockAuthRepository implements IAuthRepository {
     final user = UserProfile(
       id: const Uuid().v4(),
       displayName: displayName ?? email.split('@').first,
+      emailVerified: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
     _store.currentUser = user;
-    _store._authStreamController.add(true);
+    _store._authStreamController
+        .add(const AuthEvent(AuthEventType.signedIn, hasSession: true));
     return user;
   }
 
   @override
   Future<UserProfile> signIn({required String email, required String password}) async {
     final user = _store.currentUser ??
+        _store.seededUser ??
         UserProfile(
           id: 'demo-user-1',
           displayName: 'Zaid Al-Mansoor',
@@ -389,24 +397,69 @@ class MockAuthRepository implements IAuthRepository {
           updatedAt: DateTime.now(),
         );
     _store.currentUser = user;
-    _store._authStreamController.add(true);
+    _store._authStreamController
+        .add(const AuthEvent(AuthEventType.signedIn, hasSession: true));
     return user;
+  }
+
+  @override
+  Future<bool> signInWithGoogle() async {
+    // Simulates the browser round trip so the demo environment behaves like
+    // the real flow: request, then completion through the auth stream.
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    final user = _store.seededUser ??
+        UserProfile(
+          id: 'demo-user-1',
+          displayName: 'Zaid Al-Mansoor',
+          authProvider: 'google',
+          emailVerified: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+    _store.currentUser = user;
+    _store._authStreamController
+        .add(const AuthEvent(AuthEventType.signedIn, hasSession: true));
+    return true;
   }
 
   @override
   Future<void> signOut() async {
     _store.currentUser = null;
-    _store._authStreamController.add(false);
+    _store._authStreamController
+        .add(const AuthEvent(AuthEventType.signedOut, hasSession: false));
   }
 
   @override
   Future<void> resetPassword({required String email}) async {}
 
   @override
+  Future<void> resendConfirmation({required String email}) async {}
+
+  @override
+  Future<void> updatePassword({required String newPassword}) async {}
+
+  @override
   Future<UserProfile> updateProfile(UserProfile profile) async {
     _store.currentUser = profile;
     return profile;
   }
+
+  @override
+  Future<List<AuthIdentity>> getIdentities() async {
+    final user = _store.currentUser;
+    if (user == null) return const [];
+    return [
+      AuthIdentity(
+        id: 'demo-email-identity',
+        provider: 'email',
+        email: 'demo@hisab.app',
+        displayName: user.displayName,
+      ),
+    ];
+  }
+
+  @override
+  Future<void> unlinkIdentity(String identityId) async {}
 }
 
 class MockAccountRepository implements IAccountRepository {
