@@ -1,0 +1,19 @@
+# Normalize line endings for the entire repo
+* text=auto
+
+# Dart/Flutter source files should use LF
+*.dart text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.sql text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.webp binary
+*.ttf binary
+*.otf binary
