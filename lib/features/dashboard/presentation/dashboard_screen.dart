@@ -22,7 +22,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final summary = ref.watch(dashboardSummaryProvider);
-    final userProfile = ref.watch(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.watch(currentUserProfileProvider);
     final isPrivacy = ref.watch(privacyModeProvider);
 
     final displayName = userProfile?.displayName?.split(' ').first ?? 'Friend';

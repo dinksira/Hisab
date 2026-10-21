@@ -93,7 +93,7 @@ class _CreateEditTransactionScreenState
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final userProfile = ref.read(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.read(currentUserProfileProvider);
     final currency = userProfile?.preferredCurrency ?? 'USD';
     final parsedMoney = Money.tryParse(_amountController.text, currency);
 
@@ -188,7 +188,7 @@ class _CreateEditTransactionScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final categories = ref.watch(categoriesListProvider).valueOrNull ?? [];
     final accounts = ref.watch(accountsListProvider).valueOrNull ?? [];
-    final userProfile = ref.watch(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.watch(currentUserProfileProvider);
     final currency = userProfile?.preferredCurrency ?? 'USD';
 
     final filteredCategories = categories.where((c) => c.transactionType == _type).toList();

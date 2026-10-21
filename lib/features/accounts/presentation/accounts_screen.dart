@@ -165,7 +165,7 @@ class _CreateAccountSheetState extends ConsumerState<_CreateAccountSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final userProfile = ref.read(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.read(currentUserProfileProvider);
     final currency = userProfile?.preferredCurrency ?? 'USD';
     final parsedOpening = Money.tryParse(_balanceController.text, currency);
 

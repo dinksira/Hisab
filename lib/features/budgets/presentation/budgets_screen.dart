@@ -224,7 +224,7 @@ class _CreateBudgetSheetState extends ConsumerState<_CreateBudgetSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final userProfile = ref.read(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.read(currentUserProfileProvider);
     final currency = userProfile?.preferredCurrency ?? 'USD';
     final parsedMoney = Money.tryParse(_amountController.text, currency);
 

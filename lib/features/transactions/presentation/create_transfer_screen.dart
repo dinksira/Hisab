@@ -52,7 +52,7 @@ class _CreateTransferScreenState extends ConsumerState<CreateTransferScreen> {
       return;
     }
 
-    final userProfile = ref.read(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.read(currentUserProfileProvider);
     final currency = userProfile?.preferredCurrency ?? 'USD';
     final parsedMoney = Money.tryParse(_amountController.text, currency);
 
@@ -106,7 +106,7 @@ class _CreateTransferScreenState extends ConsumerState<CreateTransferScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accounts = ref.watch(accountsListProvider).valueOrNull ?? [];
-    final userProfile = ref.watch(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.watch(currentUserProfileProvider);
     final currency = userProfile?.preferredCurrency ?? 'USD';
 
     return Scaffold(

@@ -251,7 +251,7 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final userProfile = ref.read(currentUserProfileProvider).valueOrNull;
+    final userProfile = ref.read(currentUserProfileProvider);
     final currency = userProfile?.preferredCurrency ?? 'USD';
     final parsedTarget = Money.tryParse(_targetController.text, currency);
 
