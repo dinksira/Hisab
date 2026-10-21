@@ -1,0 +1,80 @@
+# Hisab local Supabase configuration
+#
+# Documentation: https://supabase.com/docs/reference/cli/supabase-config
+
+project_id = "hisab"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+# Mobile deep link used by the Android / iOS builds for the OAuth callback.
+additional_redirect_urls = [
+  "com.hisab.hisab://login-callback",
+  "http://localhost:3000/auth/callback",
+  "http://127.0.0.1:3000/auth/callback"
+]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+# Requires the user to confirm their email address before the account is usable.
+enable_confirmations = true
+minimum_password_length = 8
+# Allow the "Explore Demo Environment" flow to bypass email confirmation.
+sms_autofill = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+secure_password_change = false
+max_frequency = "1m0s"
+otp_length = 6
+otp_expiry = 3600
+
+[auth.email.template]
+subject = "Confirm your Hisab account"
+content_template = """
+Hi {{ .DisplayName }},
+
+Welcome to Hisab. Please confirm your email address by visiting the link below:
+
+{{ .ConfirmationURL }}
+
+If you did not create a Hisab account you can safely ignore this email.
+"""
+
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+skip_nonce_check = false
+
+[auth.external.github]
+enabled = false
+client_id = "env(SUPABASE_AUTH_GITHUB_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GITHUB_SECRET)"
+
+[analytics]
+enabled = false
