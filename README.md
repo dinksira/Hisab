@@ -1,363 +1,416 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║                           H I S A B                                  ║
+  ║                     حساب  ·  Know Your Money                         ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
+
 <div align="center">
-
-# 💎 HISAB · حساب
-### *Precision Financial Engineering for Android & iOS*
-
-**Know your money. Own your future.**
-
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![Architecture](https://img.shields.io/badge/Architecture-Clean%20%2F%20Feature--First-7928CA?style=for-the-badge)](https://riverpod.dev)
-[![Tests](https://img.shields.io/badge/Tests-14%2F14%20Passing-22c55e?style=for-the-badge&logo=checkmarx&logoColor=white)](#testing--verification)
-[![License](https://img.shields.io/badge/License-MIT-f59e0b?style=for-the-badge)](#license)
 
 <br/>
 
-[**Explore Features**](#-key-features) • [**Architecture**](#-architecture--design) • [**Quick Start**](#-getting-started) • [**Database Schema**](#-database--security) • [**Download APK**](#-android-apk)
+```
+██╗  ██╗██╗███████╗ █████╗ ██████╗
+██║  ██║██║██╔════╝██╔══██╗██╔══██╗
+███████║██║███████╗███████║██████╔╝
+██╔══██║██║╚════██║██╔══██║██╔══██╗
+██║  ██║██║███████║██║  ██║██████╔╝
+╚═╝  ╚═╝╚═╝╚══════╝╚═╝  ╚═╝╚═════╝
+```
 
+### **حساب** &nbsp;·&nbsp; *Account. Compute. Reckon.*
+
+<br/>
+
+<img src="https://img.shields.io/badge/v1.0.0-release-173D32?style=flat-square&labelColor=102B24&color=46C89A" />
+&nbsp;
+<img src="https://img.shields.io/badge/Flutter-3.x-02569B?style=flat-square&logo=flutter&logoColor=white&labelColor=0a0a0a" />
+&nbsp;
+<img src="https://img.shields.io/badge/Dart-3.x-0175C2?style=flat-square&logo=dart&logoColor=white&labelColor=0a0a0a" />
+&nbsp;
+<img src="https://img.shields.io/badge/Supabase-Powered-3ECF8E?style=flat-square&logo=supabase&logoColor=white&labelColor=0a0a0a" />
+&nbsp;
+<img src="https://img.shields.io/badge/Tests-14%20Passing-46C89A?style=flat-square&labelColor=0a0a0a" />
+
+<br/>
+<br/>
+
+*A production-grade personal finance operating system.*<br/>
+*Built for precision. Designed for sovereignty.*
+
+<br/>
+
+[**Features**](#-features) &nbsp;·&nbsp; [**Architecture**](#-architecture) &nbsp;·&nbsp; [**Design System**](#-design-system) &nbsp;·&nbsp; [**Database**](#-database) &nbsp;·&nbsp; [**Quick Start**](#-quick-start) &nbsp;·&nbsp; [**Install APK**](#-install)
+
+<br/>
 <br/>
 
 </div>
 
 ---
 
-## 🏛️ Executive Summary
+<br/>
 
-**Hisab** (*حساب* — Arabic for *account, computation, reckoning*) is an uncompromising, production-grade personal wealth manager and financial operating system. 
+## &nbsp; The Philosophy
 
-Engineered from the ground up to solve the flaws of conventional budgeting applications, Hisab merges **fintech-grade mathematical correctness** (zero IEEE-754 floating-point errors) with an **artisanal editorial design system** inspired by bespoke horology, Swiss typography, and quiet luxury.
+> *Most financial applications treat money as a number. Hisab treats it as a discipline.*
 
-Whether operated fully air-gapped in **Zero-Config Offline Demo Mode** or connected to a **Supabase PostgreSQL cluster with Row-Level Security**, Hisab provides complete sovereign control over personal capital.
+Hisab was designed with a singular conviction: that the tools we use to manage wealth must be as rigorous as the decisions they inform. Built from first principles on a foundation of **exact decimal arithmetic**, **immutable domain objects**, and **zero-compromise security**, Hisab is the private finance instrument for those who take precision seriously.
+
+The name *حساب* (Hisab) is the Arabic word for *account*, *calculation*, and *reckoning* — all three meanings intentional.
 
 <br/>
 
 ---
 
-## ✨ Key Features
+<br/>
+
+## &nbsp; Features
+
+<br/>
 
 <table>
-  <tr>
-    <td width="50%">
-      <h3>📊 Multi-Asset Portfolio Dashboard</h3>
-      <ul>
-        <li>Real-time net worth calculation across liquid cash, checking, savings, credit cards, and investments.</li>
-        <li>Cashflow trends, spending velocity, and income-vs-expense delta analysis.</li>
-        <li>One-tap <b>Privacy Mode</b> to mask balances in public spaces with high-security obscuring filters.</li>
-      </ul>
-    </td>
-    <td width="50%">
-      <h3>⚡ Frictionless Quick-Add Engine</h3>
-      <ul>
-        <li>Sub-second transaction recording via tactile bottom-sheet modal.</li>
-        <li>Automatic categorization with color-coded taxonomy badges.</li>
-        <li>Bi-directional account balance updates with atomic ledger consistency.</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🎯 Intelligent Budgets & Envelope Pacing</h3>
-      <ul>
-        <li>Categorical spend ceilings with real-time pacing velocity indicators.</li>
-        <li>Dynamic warning thresholds (80% cautionary, 100% breached) with micro-progress meters.</li>
-        <li>Month-over-month rollover reconciliation logic.</li>
-      </ul>
-    </td>
-    <td width="50%">
-      <h3>🏆 Wealth Goals & Milestone Projections</h3>
-      <ul>
-        <li>Target-date milestone tracking with progress visualization.</li>
-        <li>Incremental deposit logging and automated runway calculation.</li>
-        <li>Dedicated goal vaults decoupled from daily operating capital.</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🔁 Automated Recurring Obligations</h3>
-      <ul>
-        <li>Scheduled subscriptions, bills, and fixed recurring cashflows.</li>
-        <li>Cadence management (weekly, bi-weekly, monthly, annual).</li>
-        <li>Upcoming liability forecasting to prevent accidental overdrafts.</li>
-      </ul>
-    </td>
-    <td width="50%">
-      <h3>🛡️ Sovereign Security & Offline Autonomy</h3>
-      <ul>
-        <li><b>Offline-First Resilience</b>: Fully functional out of the box with zero external configuration required.</li>
-        <li><b>Enterprise Supabase RLS</b>: Isolated multi-tenant security policies enforced at the PostgreSQL kernel level.</li>
-        <li>Biometric lock-ready state architecture with encrypted local credentials.</li>
-      </ul>
-    </td>
-  </tr>
+<tr>
+<td valign="top" width="50%">
+
+### `01` &nbsp; Executive Dashboard
+Real-time net worth across all accounts — checking, savings, cash, credit, and investments. Inflow/outflow velocity. Spending pulse. A single tap activates **Privacy Mode**, masking every balance with cryptographic opacity.
+
+</td>
+<td valign="top" width="50%">
+
+### `02` &nbsp; Precision Ledger
+Full double-entry bookkeeping with categorical taxonomy. Instant search and temporal filters across the entire transaction history. Zero floating-point drift — every calculation is performed in arbitrary-precision decimal.
+
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+
+### `03` &nbsp; Envelope Budgets
+Monthly and annual spending ceilings per category. Live pacing velocity with sub-millisecond rendering. Burn-rate projections tell you exactly when a budget will exhaust at the current rate of spend.
+
+</td>
+<td valign="top" width="50%">
+
+### `04` &nbsp; Wealth Vaults
+Named savings goals with target dates and priority tiers. Dedicated contribution logging. Automated runway calculation: *"At your current pace, you will reach this goal in 47 days."*
+
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+
+### `05` &nbsp; Recurring Engine
+Subscription and fixed-obligation tracking. Weekly, bi-weekly, monthly, and annual cadences. Forward-looking liability calendar to eliminate surprise overdrafts.
+
+</td>
+<td valign="top" width="50%">
+
+### `06` &nbsp; Offline-First, Zero Config
+The application is complete and functional without any backend. A rich mock ledger — pre-seeded with realistic accounts, transactions, and budgets — activates automatically when no Supabase credentials are detected.
+
+</td>
+</tr>
 </table>
 
 <br/>
 
 ---
 
-## 🧮 Mathematical Rigor: The Decimal Engine
+<br/>
 
-Most consumer budgeting applications store monetary values using IEEE-754 binary floating-point numbers (`double` in Dart), leading to catastrophic cumulative rounding errors:
+## &nbsp; Architecture
+
+Hisab is structured as a **Clean Architecture** system arranged by **Feature Slice** — each product domain is independently navigable, testable, and deployable.
+
+```
+hisab/
+│
+├── lib/
+│   ├── app/                     # Bootstrap, shell, router, theme system
+│   │   ├── theme/               # Design tokens: color, spacing, radii, typography
+│   │   └── router.dart          # GoRouter • StatefulShellRoute • deep-link ready
+│   │
+│   ├── core/                    # Pure Dart domain — zero Flutter dependencies
+│   │   ├── money/               # Immutable Money value object • Decimal arithmetic engine
+│   │   ├── dates/               # Fiscal period logic • calendar utilities
+│   │   └── constants/           # Environment configuration • feature flags
+│   │
+│   ├── data/                    # Persistence boundary
+│   │   ├── remote/              # Supabase singleton • auth gateway
+│   │   └── repositories/        # Interface contracts + Supabase + Offline Mock implementations
+│   │
+│   ├── features/                # Product domains
+│   │   ├── auth/                # Login • Registration • Passwordless
+│   │   ├── dashboard/           # Net worth overview • charts • quick actions
+│   │   ├── transactions/        # Ledger • search • Quick-Add modal
+│   │   ├── accounts/            # Multi-account wallet management
+│   │   ├── budgets/             # Envelope budget management
+│   │   ├── goals/               # Savings vault tracking
+│   │   ├── recurring/           # Subscription & obligation scheduler
+│   │   └── settings/            # Profile • preferences • privacy controls
+│   │
+│   └── shared/                  # Atomic design system components
+│       └── widgets/             # FinancialCard • AmountDisplay • TransactionTile • ...
+│
+├── supabase/
+│   └── migrations/              # 413-line RLS-hardened PostgreSQL schema
+│
+└── test/                        # Domain unit tests • financial precision verification
+```
+
+<br/>
+
+### State Management
+
+All state is managed through **Riverpod 2.x `AsyncNotifier` providers**, providing compile-time safety, zero-surprise lifecycle management, and deterministic invalidation semantics.
+
+| Provider | Pattern | Responsibility |
+|---|---|---|
+| `currentUserProfileProvider` | `AsyncNotifier` | Authenticated user session & profile |
+| `accountsListProvider` | `AsyncNotifier` | Multi-account balances & wallet state |
+| `transactionsListProvider` | `AsyncNotifier` | Paginated ledger with live search |
+| `budgetsListProvider` | `AsyncNotifier` | Envelope ceilings with pacing metrics |
+| `savingsGoalsListProvider` | `AsyncNotifier` | Wealth vault progress & runway |
+| `dashboardSummaryProvider` | `Provider` (derived) | Net worth & cashflow delta composition |
+| `privacyModeProvider` | `Notifier` | One-tap balance masking toggle |
+
+<br/>
+
+---
+
+<br/>
+
+## &nbsp; Design System
+
+Hisab uses a bespoke chromatic system inspired by **quiet luxury** and **private banking interfaces** — rejecting the saturated palettes of consumer fintech in favour of deep forests, warm paper, and precisely calibrated mint.
+
+<br/>
+
+```
+ DARK MODE                         LIGHT MODE
+ ──────────────────────────────    ──────────────────────────────
+ Canvas       #0F1715  ████████    Canvas       #F8F7F2  ████████
+ Surface      #16211E  ████████    Surface      #FFFFFF  ████████
+ Primary      #173D32  ████████    Primary      #173D32  ████████
+ Accent Mint  #46C89A  ████████    Accent Mint  #46C89A  ████████
+ Income       #2E9F75  ████████    Income       #2E9F75  ████████
+ Expense      #E58B68  ████████    Expense      #E58B68  ████████
+ Warning      #D9A441  ████████    Warning      #D9A441  ████████
+ Text/1       #FFFFFF  ████████    Text/1       #202824  ████████
+ Text/2       #A3ACA6  ████████    Text/2       #78817B  ████████
+```
+
+<br/>
+
+**Typography** — [Manrope](https://fonts.google.com/specimen/Manrope) across the entire interface with `FontFeature.tabularFigures()` engaged on all numerical displays. This ensures that digits never shift or jitter during live balance updates — a property borrowed from precision instruments and stock market terminals.
+
+<br/>
+
+---
+
+<br/>
+
+## &nbsp; Database
+
+The Supabase PostgreSQL schema is contained in a single, self-documenting migration file with **Row-Level Security enforced on every table**. No row is ever readable or writable by any identity except its direct owner.
+
+<br/>
+
+```sql
+-- Every table in Hisab follows this exact security contract:
+ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users access own transactions only"
+  ON public.transactions
+  FOR ALL USING (auth.uid() = user_id);
+```
+
+<br/>
+
+### Schema
+
+```
+profiles ──────────── Extension of auth.users
+    │
+    ├── accounts ──── Checking · Savings · Credit · Cash · Investment
+    │       │
+    │       └── transactions ─── Amount · Category · Date · Notes · Type
+    │               │
+    │               └── transfers ─── from_account_id → to_account_id
+    │
+    ├── categories ── System taxonomy + custom user-defined tags
+    │
+    ├── budgets ───── Monthly / annual spend ceilings
+    │       └── budget_categories ── Junction table
+    │
+    ├── savings_goals ── Targets · Priority · Vault naming
+    │       └── goal_contributions ── Deposit audit trail
+    │
+    └── recurring_transactions ── Cadence · Auto-apply · Next-due forecasting
+```
+
+<br/>
+
+**Security invariants enforced:**
+- All tables: `ROW LEVEL SECURITY` enabled with no default-permissive fallback
+- All mutations: `auth.uid() = user_id` predicate enforced at the kernel level
+- All timestamps: automatic `updated_at` via database triggers, never trust the client
+- Zero public tables: no data is accessible without a valid authenticated JWT
+
+<br/>
+
+---
+
+<br/>
+
+## &nbsp; The Precision Engine
+
+Binary floating-point arithmetic is fundamentally unsuitable for financial computation. The error is not hypothetical:
 
 ```dart
-// The typical floating point flaw:
-0.1 + 0.2 = 0.30000000000000004 // ❌ Unacceptable in financial software
+// Standard Dart double arithmetic — WRONG for money:
+print(0.1 + 0.2);   // → 0.30000000000000004
+
+// Compounding over thousands of transactions this drift becomes material.
 ```
 
-**Hisab rejects floats unconditionally.** All computations are executed via an immutable `Money` domain value object backed by arbitrary-precision `Decimal` arithmetic:
+Every monetary value in Hisab is represented as an **immutable `Money` value object** backed by the `decimal` package's arbitrary-precision arithmetic:
 
 ```dart
-// Hisab's exact financial engine:
-final balance = Money.fromDouble(100.00, currency: 'USD');
-final expense = Money.fromDouble(33.33, currency: 'USD');
-final remaining = balance - expense; // ✅ Exactly 66.67 USD — zero drift
+/// lib/core/money/money.dart
+@immutable
+class Money {
+  final Decimal _amount;
+  final String currency;
+
+  const Money._(this._amount, this.currency);
+
+  factory Money.fromDouble(double v, {required String currency}) =>
+      Money._(Decimal.parse(v.toStringAsFixed(10)).round(scale: 4), currency);
+
+  Money operator +(Money other) => Money._(_amount + other._amount, currency);
+  Money operator -(Money other) => Money._(_amount - other._amount, currency);
+
+  // Exactly 66.67 — every time, forever.
+}
 ```
 
-* Certified zero-precision loss during multi-currency conversions and allocations.
-* Financial metrics (burn rate, savings rate, runway days) verified by automated unit tests.
+This is verified by automated tests on every commit.
 
 <br/>
 
 ---
 
-## 🏗️ Architecture & Design
+<br/>
 
-Hisab strictly adheres to **Clean Architecture** arranged in a **Feature-First modular structure**, leveraging **Riverpod 2.x** for reactive state composition and **GoRouter** for type-safe deep navigation.
-
-```mermaid
-graph TD
-    subgraph UI ["Presentation Layer (Flutter)"]
-        W[Widgets & Screens]
-        R[Riverpod AsyncNotifier Providers]
-    end
-
-    subgraph Domain ["Core Domain Layer (Pure Dart)"]
-        M[Money & Decimal Arithmetic]
-        FC[Financial Calculator Engine]
-        V[Value Objects & Validators]
-    end
-
-    subgraph Data ["Data & Persistence Layer"]
-        RI[Repository Interfaces]
-        SR[Supabase RLS Repositories]
-        MR[Offline In-Memory Mock Store]
-    end
-
-    subgraph External ["External Infrastructure"]
-        S[(Supabase PostgreSQL 15)]
-        SP[Encrypted Local Storage]
-    end
-
-    W --> R
-    R --> Domain
-    R --> RI
-    RI --> SR
-    RI --> MR
-    SR --> S
-    MR --> SP
-```
-
-### Directory Anatomy
-
-```
-lib/
-├── app/                  # Application initialization, themes, typography, router
-│   ├── theme/            # Obsidian & Forest design system, color tokens, metrics
-│   └── router.dart       # GoRouter StatefulShellRoute with bottom navigation
-├── core/                 # Pure domain business logic & financial primitives
-│   ├── money/            # Decimal money engine & financial calculations
-│   ├── dates/            # Fiscal period calculations & calendar utilities
-│   └── constants/        # Global application configuration & environment keys
-├── data/                 # Repositories, models, and remote service clients
-│   ├── remote/           # Supabase client singleton & authentication gateway
-│   └── repositories/     # Offline mock store & remote PostgreSQL repositories
-├── features/             # Feature slices (Domain, Presentation, Controllers)
-│   ├── accounts/         # Multi-account balances, wallets, institution tracking
-│   ├── analytics/        # Cashflow breakdowns, donut charts, trend lines
-│   ├── auth/             # Biometrics, login, registration, passwordless auth
-│   ├── budgets/          # Category spending ceilings & envelope progress
-│   ├── dashboard/        # Executive overview, privacy toggle, quick actions
-│   ├── goals/            # Savings milestones & wealth accumulation targets
-│   ├── recurring/        # Subscription management & fixed liability schedules
-│   └── transactions/     # Ledger records, filtering, and Quick-Add modal
-└── shared/               # Reusable atomic UI components & design system widgets
-```
+## &nbsp; Quick Start
 
 <br/>
 
----
-
-## 🎨 The Design System
-
-Inspired by high-end private banking interfaces, Hisab employs a curated chromatic palette engineered for visual calm and effortless hierarchy.
-
-### Core Chromatic Tokens
-
-| Token | Hex | Role | Visual Preview |
-|---|---|---|---|
-| **Deep Forest** | `#102B24` | Primary brand canvas & luxury surface | `rgb(16, 43, 36)` |
-| **Forest Primary** | `#173D32` | Primary buttons, active tabs, hero cards | `rgb(23, 61, 50)` |
-| **Mint Accent** | `#46C89A` | Positive delta, confirmations, glow indicators | `rgb(70, 200, 154)` |
-| **Income Green** | `#2E9F75` | Inflow transactions & positive cashflow | `rgb(46, 159, 117)` |
-| **Expense Orange** | `#E58B68` | Outflows, debit transactions, warning zones | `rgb(229, 139, 104)` |
-| **Warning Gold** | `#D9A441` | Budget threshold warnings & pending items | `rgb(217, 164, 65)` |
-| **Warm Canvas** | `#F8F7F2` | Gentle paper background (Light mode) | `rgb(248, 247, 242)` |
-| **Obsidian Canvas**| `#0F1715` | OLED deep background (Dark mode) | `rgb(15, 23, 21)` |
-
-* **Typography**: Geometric modern grotesque with **tabular figures (`FontFeature.tabularFigures()`)** enabled across all numerical displays to ensure monospaced ledger alignment without font jitter.
+**Requirements:** Flutter `^3.24` · Dart `^3.5` · Android SDK 34+ or Xcode 15+
 
 <br/>
-
----
-
-## 🔒 Database & Security
-
-Hisab's backend is powered by **Supabase PostgreSQL 15** with kernel-level **Row Level Security (RLS)**. No user can ever query or modify data belonging to another tenant.
-
-```
-supabase/
-└── migrations/
-    └── 20261021000001_initial_schema.sql   # 413 lines of rock-solid SQL
-```
-
-### Relational Schema Blueprint
-
-```
- profiles (auth.users extension)
-    ├── accounts (checking, savings, credit, cash, investment)
-    │     └── transactions (amount, category, type, date, notes)
-    │           └── transfers (from_account_id -> to_account_id)
-    ├── categories (system defaults + custom user taxonomy)
-    ├── budgets (monthly/annual allocation limits)
-    │     └── budget_categories (junction table)
-    ├── savings_goals (target dates, priority, vaults)
-    │     └── goal_contributions (audit trail of deposits)
-    └── recurring_transactions (cron schedules, cadence, auto-apply)
-```
-
-### Security Invariants
-* ✅ **Zero Public Tables**: Every single table enforces `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`.
-* ✅ **Granular Policies**: Strict `auth.uid() = user_id` checks on `SELECT`, `INSERT`, `UPDATE`, and `DELETE`.
-* ✅ **Atomic Updates**: Database-level triggers automatically maintain `updated_at` timestamps across all entities.
-
-<br/>
-
----
-
-## 📱 Android APK
-
-A production-compiled Android debug package is built and verified:
-
-* **File Name**: [`Hisab.apk`](./Hisab.apk)
-* **Build Path**: [`build/app/outputs/flutter-apk/Hisab.apk`](./build/app/outputs/flutter-apk/Hisab.apk)
-
-### Installation
 
 ```bash
-# Sideload directly to a connected device or emulator via ADB:
-adb install -r Hisab.apk
-```
+# 1. Clone
+git clone https://github.com/your-username/hisab.git && cd hisab
 
-*(Alternatively, copy `Hisab.apk` directly to any Android smartphone and open it with your device's package installer).*
-
-<br/>
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-* [Flutter SDK](https://flutter.dev/docs/get-started/install) `^3.24.0`
-* [Dart SDK](https://dart.dev/get-dart) `^3.5.0`
-* Android Studio / VS Code with Flutter extension
-* Android SDK (API 34+) or Xcode for iOS
-
-### 1. Clone & Install Dependencies
-
-```bash
-git clone https://github.com/your-username/hisab.git
-cd hisab
+# 2. Install dependencies
 flutter pub get
-```
 
-### 2. Run in Zero-Config Demo Mode (Default)
-
-Hisab includes an intelligent **Mock Repository Layer** seeded with realistic financial accounts, historical transactions, budgets, and savings goals. You can launch the app immediately without setting up any backend:
-
-```bash
+# 3. Run immediately — no configuration required
+#    Hisab boots in Offline Demo Mode with pre-seeded realistic data
 flutter run
 ```
 
-### 3. Connect to Your Supabase Instance (Optional)
-
-To connect Hisab to your cloud Supabase database:
-
-1. Copy the example environment file:
-   ```bash
-   cp .env.example .env
-   ```
-2. Populate `.env` with your project credentials:
-   ```env
-   SUPABASE_URL=https://your-project-id.supabase.co
-   SUPABASE_ANON_KEY=your-publishable-anon-key
-   ```
-3. Apply the database migration to your Supabase project:
-   ```bash
-   # Using Supabase CLI:
-   supabase db push
-   # Or copy-paste supabase/migrations/20261021000001_initial_schema.sql into SQL Editor
-   ```
-4. Run the app with your environment injected:
-   ```bash
-   flutter run --dart-define-from-file=.env
-   ```
-
 <br/>
 
----
-
-## 🧪 Testing & Verification
-
-The codebase maintains strict automated quality gates. Financial calculations, date algorithms, and state notifiers are thoroughly tested:
+**To connect a live Supabase backend:**
 
 ```bash
-# Run all unit and domain test suites:
-flutter test
+# Copy the environment template
+cp .env.example .env
 
-# Run strict static analysis:
-flutter analyze
+# Populate with your Supabase project credentials
+# SUPABASE_URL=https://your-project.supabase.co
+# SUPABASE_ANON_KEY=your-anon-key
+
+# Apply the database migration
+supabase db push
+
+# Run with injected environment
+flutter run --dart-define-from-file=.env
 ```
 
-### Verification Matrix
-- [x] **Static Analysis**: `0 errors, 0 warnings, 0 infos`
-- [x] **Unit & Domain Tests**: `14/14 passed (100%)`
-- [x] **Precision Arithmetic**: Validated against precision truncation edge-cases
-- [x] **Android Build Pipeline**: Tested and compiled to `Hisab.apk`
+<br/>
+
+---
+
+<br/>
+
+## &nbsp; Install
+
+A compiled Android debug package is available at the root of this repository.
+
+<br/>
+
+```bash
+# Sideload via ADB to a connected device or emulator:
+adb install -r Hisab.apk
+```
+
+Alternatively, transfer [`Hisab.apk`](./Hisab.apk) to any Android device and open it with the system package installer.
 
 <br/>
 
 ---
 
-## 🗺️ Engineering Roadmap
+<br/>
 
-- [x] **Phase 1: Core Foundation** — Clean architecture, design system, precision Money engine, offline mock store.
-- [x] **Phase 2: Feature Matrix** — Dashboard, Accounts, Transactions, Budgets, Savings Goals, Recurring expenses.
-- [x] **Phase 3: Security & Database** — Supabase schema, RLS policies, audit triggers, authentication screen.
-- [ ] **Phase 4: Open Banking** — Plaid & Teller integration for automated bank statement sync.
-- [ ] **Phase 5: Receipt OCR** — On-device machine-learning receipt scanning & tax categorization.
-- [ ] **Phase 6: Multi-Currency FX** — Live European Central Bank daily exchange rate synchronization.
+## &nbsp; Verification
+
+```
+flutter analyze      →   0 errors · 0 warnings · 0 infos
+flutter test         →   14 / 14 passed
+```
+
+Tests cover: `Money` arithmetic edge-cases · `FinancialCalculator` precision · Date boundary logic · Repository contracts · Provider state transitions.
 
 <br/>
 
 ---
 
-## 📄 License
+<br/>
 
-This project is open-source software licensed under the **[MIT License](LICENSE)**.
+## &nbsp; Roadmap
+
+| Status | Milestone |
+|---|---|
+| ✅ | Core architecture, design system, and precision Money engine |
+| ✅ | Complete feature matrix: Dashboard · Accounts · Transactions · Budgets · Goals · Recurring |
+| ✅ | Supabase RLS schema, authenticated data layer, offline mock store |
+| 🔲 | Open Banking — Plaid & Teller automated statement sync |
+| 🔲 | Receipt Intelligence — on-device OCR and tax categorization |
+| 🔲 | Multi-Currency — live ECB exchange rates with FX conversion ledger |
+| 🔲 | iOS App Store release |
+
+<br/>
+
+---
+
+<br/>
 
 <div align="center">
-  <sub>Crafted with precision for sovereign financial independence.</sub>
+
+**MIT License** &nbsp;·&nbsp; Open source, forever.
+
+<br/>
+
+*Hisab is engineered for those who believe that clarity of finances<br/>is a prerequisite for clarity of thought.*
+
+<br/>
+<br/>
+
 </div>
